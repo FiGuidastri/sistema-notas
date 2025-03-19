@@ -6,55 +6,73 @@ $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 if (!$id) die("ID inválido");
 
 try {
-    // Query corrigida com todos os campos
+    // Validação básica dos campos obrigatórios
+    $camposObrigatorios = ['responsavel', 'numero_nota', 'valor', 'data_emissao', 'condicao_pagamento'];
+    foreach ($camposObrigatorios as $campo) {
+        if (empty($_POST[$campo])) {
+            throw new Exception("O campo $campo é obrigatório!");
+        }
+    }
+
+    // Processamento dos valores
+    $valor = str_replace(['.', ','], ['', '.'], $_POST['valor']);
+    $valor = (float)$valor;
+    
+    // Validação do valor
+    if ($valor > 99999999.99 || $valor <= 0) {
+        throw new Exception("Valor inválido! Deve ser entre R$ 0,01 e R$ 99.999.999,99");
+    }
+
+    // Tratamento de campos opcionais (convertendo strings vazias para NULL)
+    $numero_requisicao = !empty($_POST['numero_requisicao']) ? $_POST['numero_requisicao'] : null;
+    $numero_pedido = !empty($_POST['numero_pedido']) ? $_POST['numero_pedido'] : null;
+    $protocolo = !empty($_POST['protocolo']) ? $_POST['protocolo'] : null;
+
+    // Formatação da data do protocolo
+    if ($protocolo) {
+        $protocolo = date('Y-m-d', strtotime($protocolo));
+        if (!$protocolo) {
+            throw new Exception("Formato de data do protocolo inválido!");
+        }
+    }
+
+    // Query de atualização com prepared statement
     $stmt = $conn->prepare("UPDATE notas_fiscais SET
-        numero_requisicao = ?,
-        numero_pedido = ?,
-        protocolo = ?,
         responsavel = ?,
         numero_nota = ?,
         valor = ?,
         data_emissao = ?,
-        condicao_pagamento = ?
+        condicao_pagamento = ?,
+        numero_requisicao = ?,
+        numero_pedido = ?,
+        protocolo = ?
         WHERE id = ?");
 
-    // Formatando os dados
-    $protocolo = date('Y-m-d', strtotime($_POST['protocolo']));
-    $numero_requisicao = $_POST['numero_requisicao'];
-    $numero_pedido = $_POST['numero_pedido'];
-    $responsavel = $_POST['responsavel'];
-    $numero_nota = $_POST['numero_nota'];
-    $valor = (float)$_POST['valor'];
-    $data_emissao = $_POST['data_emissao'];
-    $condicao_pagamento = $_POST['condicao_pagamento'];
-
-    // Bind dos parâmetros na ordem correta
     $stmt->bind_param(
-        "sssssdssi", // Tipos: 7 strings, 1 double, 1 integer
+        "ssdsssssi", // Tipos: s=string, d=double, i=integer
+        $_POST['responsavel'],
+        $_POST['numero_nota'],
+        $valor,
+        $_POST['data_emissao'],
+        $_POST['condicao_pagamento'],
         $numero_requisicao,
         $numero_pedido,
         $protocolo,
-        $responsavel,
-        $numero_nota,
-        $valor,
-        $data_emissao,
-        $condicao_pagamento,
         $id
     );
 
-    if ($stmt->execute()) {
-        $_SESSION['msg'] = "Nota atualizada com sucesso!";
-    } else {
-        $_SESSION['msg'] = "Erro ao atualizar: " . $stmt->error;
+    if (!$stmt->execute()) {
+        throw new Exception("Erro na atualização: " . $stmt->error);
     }
 
+    $_SESSION['msg'] = "✅ Nota atualizada com sucesso!";
     $stmt->close();
 
 } catch (Exception $e) {
-    $_SESSION['msg'] = "Erro: " . $e->getMessage();
+    $_SESSION['msg'] = "❌ Erro: " . $e->getMessage();
 }
 
 $conn->close();
-header("Location: listar_notas.php");
+header("Location: editar_nota.php?id=$id");
 exit();
 ?>
