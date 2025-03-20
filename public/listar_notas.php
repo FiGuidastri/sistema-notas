@@ -9,6 +9,7 @@ $sql = "SELECT
             id,
             responsavel,
             numero_nota,
+            fornecedor,
             valor,
             data_emissao,
             condicao_pagamento,
@@ -157,6 +158,7 @@ if (!$result) {
                 <tr>
                     <th>Responsável</th>
                     <th>Número</th>
+                    <th>Fornecedor</th>
                     <th>Valor</th>
                     <th>Emissão</th>
                     <th>Pagamento</th>
@@ -172,6 +174,7 @@ if (!$result) {
                 <tr>
                     <td><?= htmlspecialchars($row['responsavel']) ?></td>
                     <td><?= htmlspecialchars($row['numero_nota']) ?></td>
+                    <td><?= htmlspecialchars(string: $row['fornecedor']) ?></td>
                     <td>R$ <?= number_format($row['valor'], 2, ',', '.') ?></td>
                     <td><?= date('d/m/Y', strtotime($row['data_emissao'])) ?></td>
                     <td><?= htmlspecialchars($row['condicao_pagamento']) ?></td>

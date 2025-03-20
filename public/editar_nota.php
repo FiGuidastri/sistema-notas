@@ -119,7 +119,7 @@ $stmt->close();
 
             <div class="form-group">
                 <label for="protocolo">Protocolo (Data):</label>
-                <input type="date" class="form-control" id="protocolo" name="protocolo" value="<?= htmlspecialchars($nota['protocolo'] ?? date('Y-m-d')) ?>">
+                <input type="date" class="form-control" id="protocolo" name="protocolo" value="<?= htmlspecialchars($nota['protocolo'] ?? '')?>">
             </div>
 
             <button type="submit" class="btn btn-primary">Atualizar Nota</button>

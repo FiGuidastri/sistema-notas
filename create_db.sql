@@ -64,3 +64,7 @@ DELETE FROM notas_fiscais WHERE numero_nota LIKE 'NF-TEST%';
 
 -- Verifique a estrutura da tabela
 SHOW CREATE TABLE notas_fiscais;
+
+--TODO ADICIONAR COLUNA COM NOME DO FORNECEDOR
+ALTER TABLE notas_fiscais
+ADD COLUMN fornecedor VARCHAR(100) NOT NULL;

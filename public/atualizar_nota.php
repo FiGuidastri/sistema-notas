@@ -7,8 +7,8 @@ if (!$id) die("ID inválido");
 
 try {
     // Processamento dos valores
-    $valor = str_replace(['.', ','], ['', '.'], $_POST['valor']);
-    $valor = number_format((float)$valor, 2, '.', ''); // Corrigir zeros extras
+    $valor = (float) str_replace(',', '.', $_POST['valor']);
+    $valor = (float) $_POST['valor'];  // Corrigir zeros extras
     
     // Validação do valor
     if ($valor > 99999999.99 || $valor <= 0) {
