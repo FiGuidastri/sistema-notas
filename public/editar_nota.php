@@ -2,12 +2,25 @@
 session_start();
 require_once '../conexao.php';
 
-// Validação do ID
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if (!$id) die("ID inválido");
 
-// Consulta ao banco
-$stmt = $conn->prepare("SELECT * FROM notas_fiscais WHERE id = ?");
+if ($conn->connect_error) die("Erro de conexão: " . $conn->connect_error);
+
+// QUERY CORRIGIDA (removido comentário HTML)
+$stmt = $conn->prepare("SELECT 
+    id,
+    responsavel,
+    numero_nota,
+    valor,
+    data_emissao,
+    condicao_pagamento,
+    numero_requisicao,
+    numero_pedido,
+    protocolo
+FROM notas_fiscais 
+WHERE id = ?");
+
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -23,149 +36,104 @@ $stmt->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Nota Fiscal</title>
-    <link rel="stylesheet" href="../assets/estilo.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .container {
-            background: #fff;
+            background-color: #f8f9fa;
             padding: 20px;
+        }
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 400px;
         }
-
         h2 {
-            text-align: center;
+            margin-bottom: 20px;
             color: #333;
         }
-
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 1.5rem;
         }
-
-        label {
+        .form-group label {
             font-weight: bold;
-            display: block;
-            margin-bottom: 5px;
+            margin-bottom: 0.5rem;
         }
-
-        input, select {
+        .btn-primary {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .required {
-            color: red;
-        }
-
-        .btn {
-            width: 100%;
-            background-color: #007bff;
-            color: white;
             padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .btn:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-voltar {
-            display: block;
-            text-align: center;
-            margin-top: 10px;
-            text-decoration: none;
-            color: #007bff;
+            font-size: 1.1rem;
         }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <h2>Editar Nota Fiscal #<?= htmlspecialchars($nota['numero_nota']) ?></h2>
-
-        <form action="atualizar_nota.php" method="POST" onsubmit="return validarFormulario()">
+    <div class="form-container">
+        <h2>Editar Nota Fiscal #<?= $nota['numero_nota'] ?></h2>
+        
+        <form action="atualizar_nota.php" method="POST">
             <input type="hidden" name="id" value="<?= $nota['id'] ?>">
 
+            <!-- Campos originais -->
             <div class="form-group">
-                <label>Responsável: <span class="required">*</span></label>
-                <input type="text" name="responsavel" value="<?= htmlspecialchars($nota['responsavel']) ?>" required>
+                <label for="responsavel">Responsável:</label>
+                <input type="text" class="form-control" id="responsavel" name="responsavel" value="<?= htmlspecialchars($nota['responsavel']) ?>" required>
             </div>
 
             <div class="form-group">
-                <label>Número da Nota: <span class="required">*</span></label>
-                <input type="text" name="numero_nota" value="<?= htmlspecialchars($nota['numero_nota']) ?>" required>
+                <label for="numero_nota">Número da Nota:</label>
+                <input type="text" class="form-control" id="numero_nota" name="numero_nota" value="<?= htmlspecialchars($nota['numero_nota']) ?>" required>
             </div>
 
             <div class="form-group">
-                <label>Valor (R$): <span class="required">*</span></label>
-                <input type="number" step="0.01" name="valor" value="<?= htmlspecialchars($nota['valor']) ?>" required>
+                <label for="valor">Valor:</label>
+                <input type="number" step="0.01" class="form-control" id="valor" name="valor" value="<?= $nota['valor'] ?>" required>
             </div>
 
             <div class="form-group">
-                <label>Data de Emissão: <span class="required">*</span></label>
-                <input type="date" name="data_emissao" value="<?= htmlspecialchars($nota['data_emissao']) ?>" required>
+                <label for="data_emissao">Data de Emissão:</label>
+                <input type="date" class="form-control" id="data_emissao" name="data_emissao" value="<?= $nota['data_emissao'] ?>" required>
             </div>
 
             <div class="form-group">
-                <label>Condição de Pagamento: <span class="required">*</span></label>
-                <select name="condicao_pagamento" required>
+                <label for="condicao_pagamento">Condição de Pagamento:</label>
+                <select class="form-control" id="condicao_pagamento" name="condicao_pagamento" required>
                     <option value="À Vista" <?= $nota['condicao_pagamento'] == 'À Vista' ? 'selected' : '' ?>>À Vista</option>
                     <option value="30 dias" <?= $nota['condicao_pagamento'] == '30 dias' ? 'selected' : '' ?>>30 dias</option>
                     <option value="60 dias" <?= $nota['condicao_pagamento'] == '60 dias' ? 'selected' : '' ?>>60 dias</option>
                 </select>
             </div>
-
+            
+            <!-- Campos novos -->
             <div class="form-group">
-                <label>Número da Requisição:</label>
-                <input type="text" name="numero_requisicao" value="<?= htmlspecialchars($nota['numero_requisicao']) ?>">
+                <label for="numero_requisicao">Número da Requisição:</label>
+                <input type="text" class="form-control" id="numero_requisicao" name="numero_requisicao" value="<?= htmlspecialchars($nota['numero_requisicao'] ?? '') ?>">
             </div>
 
             <div class="form-group">
-                <label>Número do Pedido:</label>
-                <input type="text" name="numero_pedido" value="<?= htmlspecialchars($nota['numero_pedido']) ?>">
+                <label for="numero_pedido">Número do Pedido:</label>
+                <input type="text" class="form-control" id="numero_pedido" name="numero_pedido" value="<?= htmlspecialchars($nota['numero_pedido'] ?? '') ?>">
             </div>
 
             <div class="form-group">
-                <label>Protocolo (Data):</label>
-                <input type="date" name="protocolo" value="<?= htmlspecialchars($nota['protocolo'] ?? '') ?>">
+                <label for="protocolo">Protocolo (Data):</label>
+                <input type="date" class="form-control" id="protocolo" name="protocolo" value="<?= htmlspecialchars($nota['protocolo'] ?? date('Y-m-d')) ?>">
             </div>
 
-            <button type="submit" class="btn">Atualizar Nota</button>
+            <button type="submit" class="btn btn-primary">Atualizar Nota</button>
         </form>
-
-        <a href="listar_notas.php" class="btn-voltar">🔙 Voltar</a>
     </div>
 
-    <script>
-        function validarFormulario() {
-            const valor = document.querySelector('input[name="valor"]').value;
-            if (valor <= 0) {
-                alert("O valor da nota fiscal deve ser maior que zero!");
-                return false;
-            }
-            return true;
-        }
-    </script>
+    <!-- Botão de voltar -->
+    <button onclick="window.history.back()">Voltar</button>
 
+    <!-- Bootstrap JS (opcional, se precisar de funcionalidades JS) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 
 <?php
-$conn->close();
+$conn->close(); // Feche a conexão apenas uma vez no final
 ?>

@@ -6,17 +6,9 @@ $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 if (!$id) die("ID inválido");
 
 try {
-    // Validação básica dos campos obrigatórios
-    $camposObrigatorios = ['responsavel', 'numero_nota', 'valor', 'data_emissao', 'condicao_pagamento'];
-    foreach ($camposObrigatorios as $campo) {
-        if (empty($_POST[$campo])) {
-            throw new Exception("O campo $campo é obrigatório!");
-        }
-    }
-
     // Processamento dos valores
     $valor = str_replace(['.', ','], ['', '.'], $_POST['valor']);
-    $valor = (float)$valor;
+    $valor = number_format((float)$valor, 2, '.', ''); // Corrigir zeros extras
     
     // Validação do valor
     if ($valor > 99999999.99 || $valor <= 0) {
@@ -24,6 +16,10 @@ try {
     }
 
     // Tratamento de campos opcionais (convertendo strings vazias para NULL)
+    $responsavel = !empty($_POST['responsavel']) ? $_POST['responsavel'] : null;
+    $numero_nota = !empty($_POST['numero_nota']) ? $_POST['numero_nota'] : null;
+    $data_emissao = !empty($_POST['data_emissao']) ? $_POST['data_emissao'] : null;
+    $condicao_pagamento = !empty($_POST['condicao_pagamento']) ? $_POST['condicao_pagamento'] : null;
     $numero_requisicao = !empty($_POST['numero_requisicao']) ? $_POST['numero_requisicao'] : null;
     $numero_pedido = !empty($_POST['numero_pedido']) ? $_POST['numero_pedido'] : null;
     $protocolo = !empty($_POST['protocolo']) ? $_POST['protocolo'] : null;
@@ -50,11 +46,11 @@ try {
 
     $stmt->bind_param(
         "ssdsssssi", // Tipos: s=string, d=double, i=integer
-        $_POST['responsavel'],
-        $_POST['numero_nota'],
+        $responsavel,
+        $numero_nota,
         $valor,
-        $_POST['data_emissao'],
-        $_POST['condicao_pagamento'],
+        $data_emissao,
+        $condicao_pagamento,
         $numero_requisicao,
         $numero_pedido,
         $protocolo,
