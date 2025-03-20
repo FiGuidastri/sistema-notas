@@ -18,6 +18,7 @@ try {
     // Tratamento de campos opcionais (convertendo strings vazias para NULL)
     $responsavel = !empty($_POST['responsavel']) ? $_POST['responsavel'] : null;
     $numero_nota = !empty($_POST['numero_nota']) ? $_POST['numero_nota'] : null;
+    $fornecedor = !empty($_POST['fornecedor']) ? $_POST['fornecedor'] : null;
     $data_emissao = !empty($_POST['data_emissao']) ? $_POST['data_emissao'] : null;
     $condicao_pagamento = !empty($_POST['condicao_pagamento']) ? $_POST['condicao_pagamento'] : null;
     $numero_requisicao = !empty($_POST['numero_requisicao']) ? $_POST['numero_requisicao'] : null;
@@ -36,6 +37,7 @@ try {
     $stmt = $conn->prepare("UPDATE notas_fiscais SET
         responsavel = ?,
         numero_nota = ?,
+        fornecedor = ?,
         valor = ?,
         data_emissao = ?,
         condicao_pagamento = ?,
@@ -48,6 +50,7 @@ try {
         "ssdsssssi", // Tipos: s=string, d=double, i=integer
         $responsavel,
         $numero_nota,
+        $fornecedor,
         $valor,
         $data_emissao,
         $condicao_pagamento,

@@ -19,7 +19,10 @@ try {
     // Atribui valores às variáveis (IMPORTANTE PARA bind_param)
     $responsavel = $_POST['responsavel'];
     $numero_nota = $_POST['numero_nota'];
-    $fornecedor = $_POST['fornecedor'];
+    $fornecedor = trim($_POST['fornecedor']); // Remove espaços extras
+        if (empty($fornecedor)) {
+        throw new Exception("Fornecedor não pode ser vazio!");
+    };
     $valor = (float) str_replace(['.', ','], ['', '.'], $_POST['valor']);
     $data_emissao = $_POST['data_emissao'];
     $condicao_pagamento = $_POST['condicao_pagamento'];

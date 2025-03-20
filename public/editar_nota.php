@@ -12,6 +12,7 @@ $stmt = $conn->prepare("SELECT
     id,
     responsavel,
     numero_nota,
+    fornecedor,
     valor,
     data_emissao,
     condicao_pagamento,
@@ -80,6 +81,11 @@ $stmt->close();
             <div class="form-group">
                 <label for="responsavel">Responsável:</label>
                 <input type="text" class="form-control" id="responsavel" name="responsavel" value="<?= htmlspecialchars($nota['responsavel']) ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fornecedor">Fornecedor:</label>
+                <input type="text" class="form-control" id="fornecedor" name="fornecedor" value="<?= htmlspecialchars($nota['fornecedor']) ?>" required>
             </div>
 
             <div class="form-group">
