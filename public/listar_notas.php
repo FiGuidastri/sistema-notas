@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 
 require_once '../conexao.php';
 
+// Consulta SQL ajustada para ordenar os status
 $sql = "SELECT 
             id,
             responsavel,
@@ -33,9 +34,27 @@ $sql = "SELECT
                     THEN 'Protocolo Pendente'
                     
                 ELSE 'OK'
-            END AS status_nota
+            END AS status_nota,
+            CASE
+                WHEN (TRIM(COALESCE(numero_requisicao, '')) = '' 
+                      AND TRIM(COALESCE(numero_pedido, '')) = '' 
+                      AND protocolo IS NULL) 
+                    THEN 1
+                    
+                WHEN (TRIM(COALESCE(numero_requisicao, '')) != '' 
+                      AND TRIM(COALESCE(numero_pedido, '')) = '' 
+                      AND protocolo IS NULL) 
+                    THEN 2
+                    
+                WHEN (TRIM(COALESCE(numero_requisicao, '')) != '' 
+                      AND TRIM(COALESCE(numero_pedido, '')) != '' 
+                      AND protocolo IS NULL) 
+                    THEN 3
+                    
+                ELSE 4
+            END AS prioridade_status
         FROM notas_fiscais
-        ORDER BY data_emissao DESC";
+        ORDER BY prioridade_status ASC, data_emissao DESC";
 
 $result = $conn->query($sql);
 
@@ -116,7 +135,7 @@ if (!$result) {
         }
 
         .status-pendente-protocolo {
-            background-color: #c1ff33;
+            background-color: #ff9933;
             color: white;
         }
 
