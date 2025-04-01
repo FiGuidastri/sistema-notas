@@ -12,7 +12,7 @@ $sql = "SELECT
             fornecedor,
             valor,
             data_emissao,
-            condicao_pagamento,
+            data_vencimento,
             numero_requisicao,
             numero_pedido,
             protocolo,
@@ -105,10 +105,21 @@ if (!$result) {
             font-weight: bold;
             text-align: center;
         }
-        .status-pendente {
+        .status-pendente-requisicao {
             background-color: #e74c3c;
             color: white;
         }
+
+        .status-pendente-pedido{
+            background-color: #ffce33;
+            color: white;
+        }
+
+        .status-pendente-protocolo {
+            background-color: #c1ff33;
+            color: white;
+        }
+
         .status-ok {
             background-color: #2ecc71;
             color: white;
@@ -120,11 +131,13 @@ if (!$result) {
             font-size: 14px;
         }
         .editar {
-            background-color: #f39c12;
+            background-color: #0977d8;
             color: white;
+            padding: 7px 10px;
+            border-radius: 5px;
         }
         .editar:hover {
-            background-color: #e67e22;
+            background-color: #93b2cd;
         }
         .sem-registros {
             text-align: center;
@@ -149,7 +162,8 @@ if (!$result) {
 <body>
     <div class="header">
         <h1>Gestão de Notas Fiscais</h1>
-        <a href="formulario.html" class="btn-nova-nota">➕ Nova Nota</a>
+        <a href="formulario.php" class="btn-nova-nota">➕ Nova Nota</a>
+        <a href="calendario.php" class="btn-nova-nota" style="background-color: #3498db; margin-left: 10px;">📅 Visualizar Calendário</a>
     </div>
 
     <?php if ($result->num_rows > 0): ?>
@@ -161,7 +175,7 @@ if (!$result) {
                     <th>Fornecedor</th>
                     <th>Valor</th>
                     <th>Emissão</th>
-                    <th>Pagamento</th>
+                    <th>Vencimento</th>
                     <th>Requisição</th>
                     <th>Pedido</th>
                     <th>Protocolo</th>
@@ -174,10 +188,12 @@ if (!$result) {
                 <tr>
                     <td><?= htmlspecialchars($row['responsavel']) ?></td>
                     <td><?= htmlspecialchars($row['numero_nota']) ?></td>
-                    <td><?= htmlspecialchars(string: $row['fornecedor']) ?></td>
+                    <td><?= htmlspecialchars($row['fornecedor']) ?></td>
                     <td>R$ <?= number_format($row['valor'], 2, ',', '.') ?></td>
                     <td><?= date('d/m/Y', strtotime($row['data_emissao'])) ?></td>
-                    <td><?= htmlspecialchars($row['condicao_pagamento']) ?></td>
+                    <td>
+                        <?= !empty($row['data_vencimento']) ? date('d/m/Y', strtotime($row['data_vencimento'])) : 'N/A' ?>
+                    </td>
                     <td><?= $row['numero_requisicao'] ? htmlspecialchars($row['numero_requisicao']) : 'N/A' ?></td>
                     <td><?= $row['numero_pedido'] ? htmlspecialchars($row['numero_pedido']) : 'N/A' ?></td>
                     <td>
@@ -189,12 +205,23 @@ if (!$result) {
                         <?php endif; ?>
                     </td>
                     <td>
-                        <div class="status <?= strpos($row['status_nota'], 'Pendente') !== false ? 'status-pendente' : 'status-ok' ?>">
+                        <div class="status 
+                            <?php 
+                                if (strpos($row['status_nota'], 'Requisição Pendente') !== false) {
+                                    echo 'status-pendente-requisicao';
+                                } elseif (strpos($row['status_nota'], 'Pedido Pendente') !== false) {
+                                    echo 'status-pendente-pedido';
+                                } elseif (strpos($row['status_nota'], 'Protocolo Pendente') !== false) {
+                                    echo 'status-pendente-protocolo';
+                                } else {
+                                    echo 'status-ok';
+                                }
+                            ?>">
                             <?= $row['status_nota'] ?>
                         </div>
                     </td>
                     <td>
-                        <a href="editar_nota.php?id=<?= $row['id'] ?>">✏️ Editar</a>
+                        <a href="editar_nota.php?id=<?= $row['id'] ?>" class="acoes editar">✏️</a>
                     </td>
                 </tr>
                 <?php endwhile; ?>

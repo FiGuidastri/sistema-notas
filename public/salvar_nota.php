@@ -37,6 +37,15 @@ try {
     $condicao_pagamento = $_POST['condicao_pagamento'];
     error_log("Condição de pagamento recebida: " . $condicao_pagamento);
 
+    // Calcular a data de vencimento
+    if (!empty($_POST['data_emissao']) && !empty($_POST['condicao_pagamento'])) {
+        $data_emissao = $_POST['data_emissao'];
+        $prazo_pagamento = intval(preg_replace('/[^0-9]/', '', $_POST['condicao_pagamento'])); // Extrai o número de dias
+        $data_vencimento = date('Y-m-d', strtotime("+$prazo_pagamento days", strtotime($data_emissao)));
+    } else {
+        $data_vencimento = null; // Caso não tenha data de emissão ou condição de pagamento
+    }
+
     // Verifica campos opcionais
     $numero_requisicao = $_POST['numero_requisicao'] ?? '';
     $numero_pedido = $_POST['numero_pedido'] ?? '';
@@ -57,8 +66,9 @@ try {
         condicao_pagamento,
         numero_requisicao,
         numero_pedido,
-        protocolo
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        protocolo,
+        data_vencimento
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
     if (!$stmt) {
         throw new Exception("Erro na preparação da query: " . $conn->error);
@@ -75,10 +85,11 @@ try {
     error_log("Número Requisição: $numero_requisicao");
     error_log("Número Pedido: $numero_pedido");
     error_log("Protocolo: $protocolo");
+    error_log("Data Vencimento: $data_vencimento");
 
     // Bind dos parâmetros
     $stmt->bind_param(
-        "sssdsssss", // 9 parâmetros no total
+        "sssdssssss", // Adicione o tipo correspondente ao novo campo
         $responsavel,
         $numero_nota,
         $fornecedor,
@@ -87,7 +98,8 @@ try {
         $condicao_pagamento,
         $numero_requisicao,
         $numero_pedido,
-        $protocolo
+        $protocolo,
+        $data_vencimento
     );
 
     if (!$stmt->execute()) {

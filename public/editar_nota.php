@@ -134,7 +134,7 @@ $stmt->close();
     </div>
 
     <!-- Botão de voltar -->
-    <button onclick="window.history.back()">Voltar</button>
+    <button onclick="window.location.href='listar_notas.php'">Voltar</button>
 
     <!-- Bootstrap JS (opcional, se precisar de funcionalidades JS) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

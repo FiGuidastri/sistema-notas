@@ -42,6 +42,15 @@ try {
         $data_emissao = date('Y-m-d', $timestamp);
     }
 
+    // Calcular a data de vencimento
+    if (!empty($_POST['data_emissao']) && !empty($_POST['condicao_pagamento'])) {
+        $data_emissao = $_POST['data_emissao'];
+        $prazo_pagamento = intval(preg_replace('/[^0-9]/', '', $_POST['condicao_pagamento'])); // Extrai o número de dias
+        $data_vencimento = date('Y-m-d', strtotime("+$prazo_pagamento days", strtotime($data_emissao)));
+    } else {
+        $data_vencimento = null; // Caso não tenha data de emissão ou condição de pagamento
+    }
+
     // Query de atualização com prepared statement
     $stmt = $conn->prepare("UPDATE notas_fiscais SET
         responsavel = ?,
@@ -52,11 +61,12 @@ try {
         condicao_pagamento = ?,
         numero_requisicao = ?,
         numero_pedido = ?,
-        protocolo = ?
+        protocolo = ?,
+        data_vencimento = ?
         WHERE id = ?");
 
     $stmt->bind_param(
-        "sssdssssis", // Tipos: s=string, d=double, i=integer
+        "sssdssssssi", // Adicione o tipo correspondente ao novo campo
         $responsavel,
         $numero_nota,
         $fornecedor,
@@ -66,6 +76,7 @@ try {
         $numero_requisicao,
         $numero_pedido,
         $protocolo,
+        $data_vencimento,
         $id
     );
 
