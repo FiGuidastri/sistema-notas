@@ -163,7 +163,8 @@ if (!$result) {
     <div class="header">
         <h1>Gestão de Notas Fiscais</h1>
         <a href="formulario.php" class="btn-nova-nota">➕ Nova Nota</a>
-        <a href="calendario.php" class="btn-nova-nota" style="background-color: #3498db; margin-left: 10px;">📅 Visualizar Calendário</a>
+        <a href="calendario.php" class="btn-nova-nota" style="background-color: #3498db;">📅
+            Calendário</a>
     </div>
 
     <?php if ($result->num_rows > 0): ?>
