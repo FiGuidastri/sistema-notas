@@ -8,7 +8,6 @@ if (!$id) die("ID inválido");
 try {
     // Processamento dos valores
     $valor = (float) str_replace(',', '.', $_POST['valor']);
-    $valor = (float) $_POST['valor'];  // Corrigir zeros extras
     
     // Validação do valor
     if ($valor > 99999999.99 || $valor <= 0) {
@@ -25,12 +24,22 @@ try {
     $numero_pedido = !empty($_POST['numero_pedido']) ? $_POST['numero_pedido'] : null;
     $protocolo = !empty($_POST['protocolo']) ? $_POST['protocolo'] : null;
 
-    // Formatação da data do protocolo
+    // Validação e formatação da data do protocolo
     if ($protocolo) {
-        $protocolo = date('Y-m-d', strtotime($protocolo));
-        if (!$protocolo) {
+        $timestamp = strtotime($protocolo);
+        if (!$timestamp) {
             throw new Exception("Formato de data do protocolo inválido!");
         }
+        $protocolo = date('Y-m-d', $timestamp);
+    }
+
+    // Validação e formatação da data de emissão
+    if ($data_emissao) {
+        $timestamp = strtotime($data_emissao);
+        if (!$timestamp) {
+            throw new Exception("Formato de data de emissão inválido!");
+        }
+        $data_emissao = date('Y-m-d', $timestamp);
     }
 
     // Query de atualização com prepared statement
@@ -47,7 +56,7 @@ try {
         WHERE id = ?");
 
     $stmt->bind_param(
-        "ssdsssssi", // Tipos: s=string, d=double, i=integer
+        "sssdssssis", // Tipos: s=string, d=double, i=integer
         $responsavel,
         $numero_nota,
         $fornecedor,

@@ -27,7 +27,7 @@
 
         <div class="form-group">
             <label>Fornecedor:</label>
-            <input type="text" name="fornecedor" required> <!-- Campo obrigatório -->
+            <input type="text" name="fornecedor" required>
         </div>
 
         <div class="form-group">
@@ -53,26 +53,26 @@
         <button type="submit">Salvar Nota</button>
     </form>
 
+    <!-- Comente ou remova o script temporariamente -->
     <script>
-        document.getElementById('formNota').addEventListener('submit', function(e) {
-            // Validação simples
-            const inputs = document.querySelectorAll('input, select');
-            let valid = true;
-            
-            inputs.forEach(input => {
-                if (!input.value) {
-                    valid = false;
-                    input.style.border = '1px solid red';
-                } else {
-                    input.style.border = '';
-                }
-            });
+        // document.getElementById('formNota').addEventListener('submit', function(e) {
+        //     const inputs = document.querySelectorAll('input, select');
+        //     let valid = true;
 
-            if (!valid) {
-                e.preventDefault();
-                alert('Preencha todos os campos!');
-            }
-        });
+        //     inputs.forEach(input => {
+        //         if (!input.value) {
+        //             valid = false;
+        //             input.style.border = '1px solid red';
+        //         } else {
+        //             input.style.border = '';
+        //         }
+        //     });
+
+        //     if (!valid) {
+        //         e.preventDefault();
+        //         alert('Preencha todos os campos!');
+        //     }
+        // });
     </script>
 </body>
 </html>

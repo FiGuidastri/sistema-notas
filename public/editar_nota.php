@@ -127,6 +127,7 @@ $stmt->close();
                 <label for="protocolo">Protocolo (Data):</label>
                 <input type="date" class="form-control" id="protocolo" name="protocolo" value="<?= htmlspecialchars($nota['protocolo'] ?? '')?>">
             </div>
+    <!--todo criar campo de observação--> 
 
             <button type="submit" class="btn btn-primary">Atualizar Nota</button>
         </form>
@@ -141,5 +142,15 @@ $stmt->close();
 </html>
 
 <?php
+$protocolo = !empty($_POST['protocolo']) ? $_POST['protocolo'] : null;
+
+if ($protocolo) {
+    $timestamp = strtotime($protocolo);
+    if (!$timestamp) {
+        throw new Exception("Formato de data do protocolo inválido!");
+    }
+    $protocolo = date('Y-m-d', $timestamp);
+}
+
 $conn->close(); // Feche a conexão apenas uma vez no final
 ?>
